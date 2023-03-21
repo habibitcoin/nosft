@@ -11,6 +11,7 @@ import { getAddressInfo } from "@utils/crypto";
 import homepageData from "@data/general/home.json";
 import { useConnectWallet } from "@hooks";
 import WalletContext from "@context/wallet-context";
+import {ethers} from 'ethers'
 
 export async function getStaticProps() {
     return { props: { className: "template-color-1" } };
@@ -22,6 +23,7 @@ const App = () => {
     const elementRef = useRef(null);
 
     const [nostrAddress, setNostrAddress] = useState();
+    const [ethProvider, setEthProvider] = useState();
     const { nostrPublicKey, onConnectHandler, onDisconnectHandler } = useConnectWallet();
 
     useEffect(() => {
@@ -40,6 +42,17 @@ const App = () => {
         setNostrAddress(address);
     }, [nostrPublicKey]);
 
+    useEffect(() => {
+        if (typeof window == undefined) return;        
+        console.log(window.ethereum)
+        if (!window.ethereum) return;
+        console.log(window.ethereum);
+        const provider = window.ethereum
+        console.log(provider);
+        console.log("null?");
+        setEthProvider(provider);        
+    })
+
     const content = normalizedData(homepageData?.content || []);
 
     const obj = useMemo(
@@ -47,8 +60,9 @@ const App = () => {
             nostrPublicKey,
             nostrAddress,
             isExperimental,
+            ethProvider,
         }),
-        [nostrPublicKey, nostrAddress, isExperimental]
+        [nostrPublicKey, nostrAddress, isExperimental, ethProvider]
     );
 
     return (
@@ -58,6 +72,7 @@ const App = () => {
                 <Header
                     ref={elementRef}
                     nostrPublicKey={nostrPublicKey}
+                    ethProvider={ethProvider}
                     onConnectHandler={onConnectHandler}
                     onDisconnectHandler={onDisconnectHandler}
                     address={nostrAddress}

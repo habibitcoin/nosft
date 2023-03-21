@@ -39,21 +39,21 @@ export const getAddressInfo = (publicKey) => {
 const defaultPath = "m/86'/0'/0'/0/0";
 
 // sign message with first sign transaction
-const TAPROOT_MESSAGE =
+export const TAPROOT_MESSAGE = (domain) =>
     // will switch to nosft.xyz once sends are implemented
-    "Sign this message to generate your Bitcoin Taproot key. This key will be used for your generative.xyz transactions.";
+    `Sign this message to generate your Bitcoin Taproot key. This key will be used for your ${domain} transactions.`;
 
-export const connectWallet = async () => {
+export const connectWallet = async (metamask) => {
     const { ethereum } = window;
 
-    if (ethereum) {
+    if (ethereum && metamask) {
         let ethAddress = ethereum.selectedAddress;
         if (!ethAddress) {
             await ethereum.request({ method: "eth_requestAccounts" });
             ethAddress = ethereum.selectedAddress;
         }
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const toSign = `0x${Buffer.from(TAPROOT_MESSAGE).toString("hex")}`;
+        const toSign = `0x${Buffer.from(TAPROOT_MESSAGE(metamask)).toString("hex")}`;
         const signature = await provider.send("personal_sign", [toSign, ethAddress]);
         const seed = ethers.utils.arrayify(ethers.utils.keccak256(ethers.utils.arrayify(signature)));
         const root = bip32.fromSeed(Buffer.from(seed));

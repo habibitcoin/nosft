@@ -46,12 +46,13 @@ const SendModal = ({ show, handleModal, utxo, onSale }) => {
     }
 
     // sign message with first sign transaction
-    const TAPROOT_MESSAGE =
-        // will switch to nosft.xyz once sends are implemented
-        "Sign this message to generate your Bitcoin Taproot key. This key will be used for your generative.xyz transactions.";
+    const TAPROOT_MESSAGE = (domain) =>
+    // will switch to nosft.xyz once sends are implemented
+    `Sign this message to generate your Bitcoin Taproot key. This key will be used for your ${domain} transactions.`;
 
     async function sendUtxo() {
         const inputAddressInfo = getAddressInfo(nostrPublicKey);
+        const domain = SessionStorage.get(SessionsStorageKeys.DOMAIN);
         const psbt = new bitcoin.Psbt({
             network: TESTNET ? bitcoin.networks.testnet : bitcoin.networks.bitcoin,
         });
@@ -62,7 +63,7 @@ const SendModal = ({ show, handleModal, utxo, onSale }) => {
 
         if (ethAddress) {
             const provider = new ethers.providers.Web3Provider(ethereum);
-            const toSign = `0x${Buffer.from(TAPROOT_MESSAGE).toString("hex")}`;
+            const toSign = `0x${Buffer.from(TAPROOT_MESSAGE(domain)).toString("hex")}`;
             const signature = await provider.send("personal_sign", [toSign, ethAddress]);
             const seed = ethers.utils.arrayify(ethers.utils.keccak256(ethers.utils.arrayify(signature)));
             const root = bip32.fromSeed(Buffer.from(seed));
