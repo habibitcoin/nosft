@@ -11,7 +11,7 @@ import { getAddressInfo } from "@utils/crypto";
 import homepageData from "@data/general/home.json";
 import { useConnectWallet } from "@hooks";
 import WalletContext from "@context/wallet-context";
-import {ethers} from 'ethers'
+import { ethers } from "ethers";
 
 export async function getStaticProps() {
     return { props: { className: "template-color-1" } };
@@ -43,15 +43,15 @@ const App = () => {
     }, [nostrPublicKey]);
 
     useEffect(() => {
-        if (typeof window == undefined) return;        
-        console.log(window.ethereum)
+        if (typeof window == undefined) return;
+        console.log(window.ethereum);
         if (!window.ethereum) return;
         console.log(window.ethereum);
-        const provider = window.ethereum
+        const provider = window.ethereum;
         console.log(provider);
         console.log("null?");
-        setEthProvider(provider);        
-    })
+        setEthProvider(provider);
+    });
 
     const content = normalizedData(homepageData?.content || []);
 

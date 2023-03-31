@@ -7,7 +7,7 @@ import { validate, Network } from "bitcoin-address-validation";
 import InputGroup from "react-bootstrap/InputGroup";
 import Form from "react-bootstrap/Form";
 import { TESTNET, DEFAULT_FEE_RATE } from "@lib/constants";
-import { shortenStr, outputValue, getAddressInfo, tweakSigner, connectWallet } from "@utils/crypto";
+import { shortenStr, outputValue, getAddressInfo, tweakSigner } from "@utils/crypto";
 import SessionStorage, { SessionsStorageKeys } from "@services/session-storage";
 import { serializeTaprootSignature } from "bitcoinjs-lib/src/psbt/bip371";
 import * as bitcoin from "bitcoinjs-lib";
@@ -47,8 +47,8 @@ const SendModal = ({ show, handleModal, utxo, onSale }) => {
 
     // sign message with first sign transaction
     const TAPROOT_MESSAGE = (domain) =>
-    // will switch to nosft.xyz once sends are implemented
-    `Sign this message to generate your Bitcoin Taproot key. This key will be used for your ${domain} transactions.`;
+        // will switch to nosft.xyz once sends are implemented
+        `Sign this message to generate your Bitcoin Taproot key. This key will be used for your ${domain} transactions.`;
 
     async function sendUtxo() {
         const inputAddressInfo = getAddressInfo(nostrPublicKey);

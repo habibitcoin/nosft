@@ -1,6 +1,6 @@
 /* eslint no-extra-boolean-cast: "off" */
 
-import React, { useContext,useState } from "react";
+import React, { useContext, useState } from "react";
 import PropTypes from "prop-types";
 import clsx from "clsx";
 
@@ -8,19 +8,23 @@ import Logo from "@components/logo";
 import MainMenu from "@components/menu/main-menu";
 import MobileMenu from "@components/menu/mobile-menu";
 import UserDropdown from "@components/user-dropdown";
-import WalletDropdown from "@components/wallet-dropdown";
 import { useOffcanvas } from "@hooks";
 import BurgerButton from "@ui/burger-button";
 import Button from "@ui/button";
 import WalletContext from "@context/wallet-context";
 import headerData from "../data/general/header.json";
 import menuData from "../data/general/menu.json";
+import ConnectWallet from "@components/modals/connect-wallet";
 
 const Header = React.forwardRef(({ className, onConnectHandler, onDisconnectHandler }, ref) => {
     const { offcanvas, offcanvasHandler } = useOffcanvas();
     const { nostrPublicKey, nostrAddress, ethProvider } = useContext(WalletContext);
+    const [showConnectModal, setShowConnectModal] = useState(false);
+    const handleShowConnectModal = () => {
+        setShowConnectModal((prev) => !prev);
+    };
 
-    console.log('header loaded');
+    console.log("header loaded");
     console.log(ethProvider);
 
     return (
@@ -44,23 +48,27 @@ const Header = React.forwardRef(({ className, onConnectHandler, onDisconnectHand
                         </div>
                         <div className="header-right">
                             {!Boolean(nostrPublicKey) && (
-                                <div className="setting-option header-btn">                              
+                                <div className="setting-option header-btn">
                                     <div className="setting-option rn-icon-list user-account">
                                         <Button
                                             color="primary-alta"
                                             className="connectBtn"
                                             size="small"
-                                            onClick={() => onConnectHandler('nosft.xyz')}
+                                            onClick={handleShowConnectModal}
                                         >
                                             Connect Wallet
                                         </Button>
-                                        {ethProvider && (<WalletDropdown onConnect={onConnectHandler}/>)}</div>
+                                        <ConnectWallet
+                                            show={showConnectModal}
+                                            onConnect={onConnectHandler}
+                                            handleModal={handleShowConnectModal}
+                                        />
+                                    </div>
                                 </div>
                             )}
                             {nostrPublicKey && nostrAddress && (
                                 <div className="setting-option rn-icon-list user-account">
                                     <UserDropdown
-                                        onConnect={onConnectHandler}
                                         onDisconnect={onDisconnectHandler}
                                         pubKey={nostrPublicKey}
                                         receiveAddress={nostrAddress}
