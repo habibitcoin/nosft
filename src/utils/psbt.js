@@ -111,8 +111,8 @@ export async function signAndBroadcastUtxo({ pubKey, utxo, destinationBtcAddress
     return broadcastPsbt(psbt);
 }
 
-export async function signPsbt(message) {
-    const virtualToSign = bitcoin.Psbt.fromBase64(message);
+export async function signPsbt(psbtBase64) {
+    const virtualToSign = bitcoin.Psbt.fromBase64(psbtBase64);
     const sigHash = virtualToSign.__CACHE.__TX.hashForWitnessV1(
         0,
         [virtualToSign.data.inputs[0].witnessUtxo.script],
@@ -130,11 +130,5 @@ export async function signPsbt(message) {
 
     virtualToSign.finalizeAllInputs();
 
-    const toSignTx = virtualToSign.toHex();
-
-    const sig = `Your PSBT is: ${toSignTx}`;
-    alert(sig);
-    console.log(toSignTx);
-
-    return toSignTx;
+    return virtualToSign;
 }

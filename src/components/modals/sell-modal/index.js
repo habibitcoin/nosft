@@ -11,7 +11,7 @@ import { shortenStr, fetchBitcoinPrice, satsToFormattedDollarString } from "@uti
 import * as bitcoin from "bitcoinjs-lib";
 import * as ecc from "tiny-secp256k1";
 import WalletContext from "@context/wallet-context";
-import { OpenOrdex } from "@utils/openOrdex";
+import { generatePSBTListingInscriptionForSale, getInscriptionDataById } from "@utils/openOrdex";
 import { toast } from "react-toastify";
 import { TailSpin } from "react-loading-icons";
 import { nostrPool } from "@services/nostr-relay";
@@ -19,7 +19,7 @@ import { InscriptionPreview } from "@components/inscription-preview";
 
 bitcoin.initEccLib(ecc);
 
-const SendModal = ({ show, handleModal, utxo }) => {
+const SellModal = ({ show, handleModal, utxo }) => {
     const { nostrAddress, nostrPublicKey } = useContext(WalletContext);
 
     const [isBtcInputAddressValid, setIsBtcInputAddressValid] = useState(true);
@@ -28,8 +28,6 @@ const SendModal = ({ show, handleModal, utxo }) => {
     const [ordinalValue, setOrdinalValue] = useState(utxo.value);
     const [bitcoinPrice, setBitcoinPrice] = useState();
     const [isOnSale, setIsOnSale] = useState(false);
-
-    let openOrderx;
 
     useEffect(() => {
         const getPrice = async () => {
@@ -42,20 +40,18 @@ const SendModal = ({ show, handleModal, utxo }) => {
 
     const sale = async () => {
         setIsOnSale(true);
-        if (!openOrderx) {
-            openOrderx = await OpenOrdex.init();
-        }
 
-        const inscription = await openOrderx.getInscriptionDataById(utxo.inscriptionId);
+        const inscription = await getInscriptionDataById(utxo.inscriptionId);
         const { inscriptionId } = utxo;
-        const signedPsbt = await openOrderx.generatePSBTListingInscriptionForSale(
+        const signedPsbt = await generatePSBTListingInscriptionForSale(
             inscription.output,
             ordinalValue,
             destinationBtcAddress
         );
 
         try {
-            await openOrderx.submitSignedSalePsbt(utxo, ordinalValue, signedPsbt);
+            console.log(signedPsbt)
+            alert(signedPsbt)
             toast.info("Ordinal is now on sale");
         } catch (e) {
             toast.error(e.message);
@@ -203,10 +199,10 @@ const SendModal = ({ show, handleModal, utxo }) => {
     );
 };
 
-SendModal.propTypes = {
+SellModal.propTypes = {
     show: PropTypes.bool.isRequired,
     handleModal: PropTypes.func.isRequired,
     utxo: PropTypes.object,
     onSale: PropTypes.func,
 };
-export default SendModal;
+export default SellModal;
