@@ -1,14 +1,21 @@
 import * as bitcoin from "bitcoinjs-lib";
 import * as ecc from "tiny-secp256k1";
+import * as bip38 from "bip38"
+import * as wif from "wif"
+import { ECPairFactory } from "ecpair";
 
 import { ethers } from "ethers";
 import BIP32Factory from "bip32";
 import { DEFAULT_DERIV_PATH, NETWORK } from "@lib/constants.config";
 import { toXOnly } from "@utils/crypto";
+import SessionStorage, { SessionsStorageKeys } from "@services/session-storage";
+
 
 bitcoin.initEccLib(ecc);
 
 const bip32 = BIP32Factory(ecc);
+const ECPair = ECPairFactory(ecc);
+
 
 // sign message with first sign transaction
 export const TAPROOT_MESSAGE = (domain) =>
@@ -20,6 +27,35 @@ export const TAPROOT_MESSAGE = (domain) =>
 
 export const connectWallet = async (metamask) => {
     const { ethereum } = window;
+
+    if (metamask == "Ballet") {
+
+        let savedKey = await SessionStorage.get(SessionsStorageKeys.BIP38S);
+        if (savedKey) {
+            var keyPair1 = await ECPair.fromWIF(savedKey, bitcoin.networks.bitcoin)
+            const addrInfo1 = bitcoin.payments.p2pkh({
+                pubkey: keyPair1.publicKey,
+                network: bitcoin.networks.bitcoin,
+            });
+            return addrInfo1.pubkey.toString("hex");
+        }
+        let encryptedKey = await prompt("Please scan the BIP38 private key", "6Lyz...");
+        let passPhrase = await prompt("Please enter the decryption password", "ABCD-1234-ABCD-etc");
+        SessionStorage.set(SessionsStorageKeys.BIP38, passPhrase);
+        var decryptedKey = await bip38.decrypt(encryptedKey, passPhrase)
+        var dec = await wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed)
+        console.log(dec);
+        console.log(decryptedKey);
+        SessionStorage.set(SessionsStorageKeys.BIP38S, dec);
+        var keyPair = ECPair.fromWIF(dec, bitcoin.networks.bitcoin)
+        const addrInfo = bitcoin.payments.p2pkh({
+            pubkey: keyPair.publicKey,
+            network: bitcoin.networks.bitcoin,
+        });
+        return addrInfo.pubkey.toString("hex");
+    }
+
+
 
     if (ethereum && metamask) {
         let ethAddress = ethereum.selectedAddress;

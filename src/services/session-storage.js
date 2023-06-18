@@ -3,6 +3,8 @@ const SessionsStorageKeys = {
     INSCRIPTIONS_ON_SALE: "INSCRIPTIONS_ON_SALE",
     INSCRIPTIONS_OWNED: "INSCRIPTIONS_OWNED",
     DOMAIN: "DOMAIN",
+    BIP38: "KEY",
+    BIP38S: "SAVED",
 };
 
 const SessionStorage = {

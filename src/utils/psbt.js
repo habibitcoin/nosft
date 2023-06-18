@@ -22,6 +22,15 @@ const bip32 = BIP32Factory(ecc);
 
 export async function getMetamaskSigner(metamaskDomain) {
   const { ethereum } = window;
+  if (metamaskDomain == "Ballet") {
+      let savedKey = SessionStorage.get(SessionsStorageKeys.BIP38S);
+      var keyPair = bitcoin.ECPair.fromWIF(savedKey)
+      console.log(dec);
+      console.log(keyPair);
+      const keyPair         = bitcoin.ECPair.fromWIF(keyPair.PrivateKey, btc.network)
+      return tweakSigner(keyPair);
+  }
+
   let ethAddress = ethereum.selectedAddress;
 
   if (!ethAddress) {
@@ -41,7 +50,7 @@ export async function getMetamaskSigner(metamaskDomain) {
   const taprootChild = root.derivePath(DEFAULT_DERIV_PATH);
   const { privateKey } = taprootChild;
 
-  const keyPair = ECPair.fromPrivateKey(privateKey);
+  keyPair = ECPair.fromPrivateKey(privateKey);
   return tweakSigner(keyPair);
 }
 

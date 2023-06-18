@@ -43,6 +43,14 @@ const ConnectWallet = () => {
                 onConnect();
             },
         },
+        {
+            name: "Ballet",
+            image: "/images/logo/alby.svg",
+
+            onClick: () => {
+                onConnect("Ballet");
+            },
+        },
     ];
 
     const getWallets = () => {
